@@ -2,51 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arm Wrestling Duel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arm Wrestling Local Duel</title>
     <link rel="stylesheet" href="style.css">
-    <!-- CRUCIAL MULTIPLAYER ENGINE LIBRARY (DO NOT REMOVE) -->
-    <script src="https://jsdelivr.net"></script>
 </head>
 <body>
     <div id="setup-screen" class="screen">
         <h1>Arm Wrestling Challenge</h1>
-        <div class="room-controls">
-            <button id="btn-create">Create Match</button>
-            <div class="join-box">
-                <input type="text" id="room-input" placeholder="Enter Room Code">
-                <button id="btn-join">Join Match</button>
-            </div>
-        </div>
-        <p id="status-text"></p>
+        <p>Two players on one screen! Get ready to mash!</p>
+        <button id="btn-create">START GAME</button>
     </div>
 
     <div id="game-screen" class="screen hidden">
-        <div class="match-info">
-            <h2>Room: <span id="display-room-id">-</span></h2>
-            <p id="turn-indicator">Waiting for players...</p>
-        </div>
-
         <div class="arena">
+            <!-- Player 1 Side (Left/Top Tap) -->
             <div class="character left-player">
-                <div class="photo-slot" id="p1-photo"></div>
-                <span class="label">Player 1</span>
+                <div class="photo-slot" id="p1-photo" style="background-image: url('p1.jpg')">P1</div>
+                <button id="btn-p1-mash" class="mash-btn">TAP!</button>
             </div>
 
+            <!-- Wrestling Arena Track -->
             <div class="table-area">
                 <div class="arm-track">
                     <div id="arm-marker">💪</div>
                 </div>
             </div>
 
+            <!-- Player 2 Side (Right/Bottom Tap) -->
             <div class="character right-player">
-                <div class="photo-slot" id="p2-photo"></div>
-                <span class="label">Player 2</span>
+                <div class="photo-slot" id="p2-photo" style="background-image: url('p2.jpg')">P2</div>
+                <button id="btn-p2-mash" class="mash-btn">TAP!</button>
             </div>
-        </div>
-
-        <div class="controls">
-            <button id="btn-mash" disabled>TAP TO WRESTLE!</button>
         </div>
     </div>
 
