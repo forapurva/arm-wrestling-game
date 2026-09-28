@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arm Wrestling Duel</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Supabase CDN for live multiplayer syncing -->
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body>
+    <div id="setup-screen" class="screen">
+        <h1>Arm Wrestling Challenge</h1>
+        <div class="room-controls">
+            <button id="btn-create">Create Match</button>
+            <div class="join-box">
+                <input type="text" id="room-input" placeholder="Enter Room Code">
+                <button id="btn-join">Join Match</button>
+            </div>
+        </div>
+        <p id="status-text"></p>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div class="match-info">
+            <h2>Room: <span id="display-room-id">-</span></h2>
+            <p id="turn-indicator">Waiting for players...</p>
+        </div>
+
+        <div class="arena">
+            <div class="character left-player">
+                <div class="photo-slot" id="p1-photo">P1 Photo</div>
+                <span class="label">Player 1</span>
+            </div>
+
+            <div class="table-area">
+                <div class="arm-track">
+                    <div id="arm-marker">💪</div>
+                </div>
+            </div>
+
+            <div class="character right-player">
+                <div class="photo-slot" id="p2-photo">P2 Photo</div>
+                <span class="label">Player 2</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="btn-mash" disabled>TAP TO WRESTLE!</button>
+        </div>
+    </div>
+
+    <div id="ending-screen" class="screen hidden">
+        <h1 id="match-result">Match Over!</h1>
+        <div class="punishment-scene">
+            <h2>Punishment Time!</h2>
+            <p>No matter who lost, you must make out! 😘</p>
+            <div class="kiss-visual">👩‍❤️‍💋‍👨</div>
+        </div>
+        <button id="btn-restart" onclick="location.reload()">Play Again</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
