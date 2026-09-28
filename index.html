@@ -3,63 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arm Wrestling Online Duel</title>
+    <title>Online Arm Wrestling Challenge</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Essential database connection engine file -->
-    <script src="https://jsdelivr.net"></script>
 </head>
 <body>
-    <div id="setup-screen" class="screen">
+    <div class="game-container">
         <h1>Arm Wrestling Challenge</h1>
-        <div class="room-controls">
-            <button id="btn-create">Create Match</button>
-            <div class="join-box">
-                <input type="text" id="room-input" placeholder="Enter Room Code">
-                <button id="btn-join">Join Match</button>
-            </div>
-        </div>
-        <p id="status-text"></p>
-    </div>
-
-    <div id="game-screen" class="screen hidden">
-        <div class="match-info">
-            <h2>Room: <span id="display-room-id">-</span></h2>
-            <p id="turn-indicator">Waiting for players...</p>
-        </div>
-
-        <div class="arena">
-            <div class="character left-player">
-                <div class="photo-slot" id="p1-photo" style="background-image: url('p1.jpg')">P1</div>
-                <span class="label">Player 1</span>
-            </div>
-
-            <div class="table-area">
-                <div class="arm-track">
-                    <div id="arm-marker">💪</div>
-                </div>
-            </div>
-
-            <div class="character right-player">
-                <div class="photo-slot" id="p2-photo" style="background-image: url('p2.jpg')">P2</div>
-                <span class="label">Player 2</span>
+        
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="screen">
+            <p>Battle players live across the internet!</p>
+            <button id="create-btn">Create Match</button>
+            <div class="join-container">
+                <input type="text" id="match-input" placeholder="Enter Match ID">
+                <button id="join-btn">Join Match</button>
             </div>
         </div>
 
-        <div class="controls">
-            <button id="btn-mash" disabled>TAP TO WRESTLE!</button>
+        <!-- Gameplay Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div class="match-info">
+                <p>Match ID: <span id="display-match-id"></span></p>
+                <p id="status-text">Waiting for opponent...</p>
+            </div>
+            
+            <!-- Simple Visual Arm Arena -->
+            <div class="arena">
+                <div class="player-side left">Player 1</div>
+                <div id="arm-indicator">|</div>
+                <div class="player-side right">Player 2</div>
+            </div>
+
+            <button id="mash-btn" disabled>MASH HERE!</button>
         </div>
     </div>
-
-    <div id="ending-screen" class="screen hidden">
-        <h1 id="match-result">Match Over!</h1>
-        <div class="punishment-scene">
-            <h2>Punishment Time!</h2>
-            <p>No matter who lost, you must make out! 😘</p>
-            <div class="kiss-visual">👩‍❤️‍💋‍👨</div>
-        </div>
-        <button id="btn-restart" onclick="location.reload()">Play Again</button>
-    </div>
-
-    <script src="app.js"></script>
+    
+    <script type="module" src="app.js"></script>
 </body>
 </html>
