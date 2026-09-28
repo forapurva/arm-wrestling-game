@@ -1,110 +1,139 @@
-const SUPABASE_URL = "https://supabase.co";
-const SUPABASE_KEY = "sb_publishable_JnY3vAGCA_Vg8ry7wTecvg_ZRHBG37c";
+import { createClient } from 'https://esm.sh'
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// REPLACE THESE WITH YOUR COPIED DETAILS
+const SUPABASE_URL = 'sb_publishable_JnY3vAGCA_Vg8ry7wTecvg_ZRHBG37c' 
+const SUPABASE_KEY = 'sb_secret_lYAEJ3vvvMeClU7HgrrsyQ_m3DsSrhe'
 
-let roomId = null;
-let playerRole = null; 
-let gameState = { position: 50, status: 'waiting' };
-let channel = null;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-const setupScreen = document.getElementById('setup-screen');
+let currentMatchId = null;
+let playerRole = null; // 'player1' or 'player2'
+let matchChannel = null;
+
+// DOM Elements
+const menuScreen = document.getElementById('menu-screen');
 const gameScreen = document.getElementById('game-screen');
-const endingScreen = document.getElementById('ending-screen');
+const createBtn = document.getElementById('create-btn');
+const joinBtn = document.getElementById('join-btn');
+const matchInput = document.getElementById('match-input');
+const displayMatchId = document.getElementById('display-match-id');
 const statusText = document.getElementById('status-text');
-const displayRoomId = document.getElementById('display-room-id');
-const turnIndicator = document.getElementById('turn-indicator');
-const armMarker = document.getElementById('arm-marker');
-const btnMash = document.getElementById('btn-mash');
+const mashBtn = document.getElementById('mash-btn');
+const armIndicator = document.getElementById('arm-indicator');
 
-document.getElementById('btn-create').addEventListener('click', createRoom);
-document.getElementById('btn-join').addEventListener('click', joinRoom);
-btnMash.addEventListener('click', handleMash);
+// Event Listeners
+createBtn.addEventListener('click', createMatch);
+joinBtn.addEventListener('click', joinMatch);
+mashBtn.addEventListener('click', handleMash);
 
-function generateRoomCode() {
-    return Math.random().toString(36).substring(2, 7).toUpperCase();
-}
+// 1. Create a Match
+async function createMatch() {
+    statusText.innerText = "Creating match...";
+    const { data, error } = await supabase
+        .from('matches')
+        .insert([{ player_1_score: 0, player_2_score: 0, status: 'waiting' }])
+        .select()
+        .single();
 
-function createRoom() {
-    roomId = generateRoomCode();
+    if (error) {
+        alert("Error creating match: " + error.message);
+        return;
+    }
+
+    currentMatchId = data.id;
     playerRole = 'player1';
-    initMultiplayer(roomId);
+    setupGameUI();
 }
 
-function joinRoom() {
-    const input = document.getElementById('room-input').value.trim().toUpperCase();
-    if (!input) return alert('Please enter a room code.');
-    roomId = input;
-    playerRole = 'player2';
-    initMultiplayer(roomId);
-}
+// 2. Join an Existing Match
+async function joinMatch() {
+    const matchId = matchInput.value.trim();
+    if (!matchId) return alert("Please enter a Match ID");
 
-function initMultiplayer(roomCode) {
-    statusText.innerText = "Connecting to room...";
+    statusText.innerText = "Joining match...";
     
-    channel = supabase.channel(`room-${roomCode}`, {
-        config: { broadcast: { self: true } }
-    });
+    // Update match status to playing
+    const { data, error } = await supabase
+        .from('matches')
+        .update({ status: 'playing' })
+        .eq('id', matchId)
+        .select()
+        .single();
 
-    channel
-    .on('broadcast', { event: 'sync' }, ({ payload }) => {
-        handleStateUpdate(payload);
-    })
-    .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-            setupScreen.classList.add('hidden');
-            gameScreen.classList.remove('hidden');
-            displayRoomId.innerText = roomCode;
+    if (error || !data) {
+        alert("Match not found or unable to join.");
+        return;
+    }
 
-            if (playerRole === 'player1') {
-                turnIndicator.innerText = "Waiting for Player 2 to join...";
-            } else {
-                gameState.status = 'playing';
-                broadcastState(gameState);
-            }
-        }
-    });
+    currentMatchId = data.id;
+    playerRole = 'player2';
+    setupGameUI();
 }
 
-function broadcastState(state) {
-    if (channel) {
-        channel.send({
-            type: 'broadcast',
-            event: 'sync',
-            payload: state
-        });
+// 3. Switch screens and start listening live
+function setupGameUI() {
+    menuScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+    displayMatchId.innerText = currentMatchId;
+
+    // Listen to real-time database updates for this specific match
+    matchChannel = supabase
+        .channel(`match:${currentMatchId}`)
+        .on('postgres_changes', { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'matches', 
+            filter: `id=eq.${currentMatchId}` 
+        }, (payload) => {
+            updateGameState(payload.new);
+        })
+        .subscribe();
+}
+
+// 4. Update the arm movement instantly on screen
+function updateGameState(match) {
+    if (match.status === 'playing') {
+        statusText.innerText = "BATTLE! MASH THE BUTTON!";
+        mashBtn.disabled = false;
+    }
+
+    const p1 = match.player_1_score || 0;
+    const p2 = match.player_2_score || 0;
+    const total = p1 + p2;
+    
+    // Calculate middle position shift based on mashing
+    let positionPercentage = 50;
+    if (total > 0) {
+        positionPercentage = 50 + (((p1 - p2) / total) * 40); // bounds it between 10% and 90%
+    }
+    
+    armIndicator.style.left = `${positionPercentage}%`;
+
+    // Check Win Conditions
+    if (p1 - p2 >= 20) {
+        endGame("Player 1 Wins!");
+    } else if (p2 - p1 >= 20) {
+        endGame("Player 2 Wins!");
     }
 }
 
-function handleStateUpdate(payload) {
-    gameState = payload;
-    armMarker.style.left = `${gameState.position}%`;
+// 5. Send button mash data to Supabase
+async function handleMash() {
+    if (!currentMatchId) return;
 
-    if (gameState.status === 'playing') {
-        turnIndicator.innerText = "MATCH LIVE! MASH THE BUTTON!";
-        btnMash.disabled = false;
-    }
-
-    if (gameState.position <= 0 || gameState.position >= 100) {
-        endGame();
-    }
-}
-
-function handleMash() {
-    if (gameState.status !== 'playing') return;
+    // Increment current score directly in the database using RPC or an update snippet
     if (playerRole === 'player1') {
-        gameState.position = Math.max(0, gameState.position - 4);
-    } else if (playerRole === 'player2') {
-        gameState.position = Math.min(100, gameState.position + 4);
+        // Fetch current match to get latest score dynamically
+        let { data } = await supabase.from('matches').select('player_1_score').eq('id', currentMatchId).single();
+        await supabase.from('matches').update({ player_1_score: (data.player_1_score || 0) + 1 }).eq('id', currentMatchId);
+    } else {
+        let { data } = await supabase.from('matches').select('player_2_score').eq('id', currentMatchId).single();
+        await supabase.from('matches').update({ player_2_score: (data.player_2_score || 0) + 1 }).eq('id', currentMatchId);
     }
-    broadcastState(gameState);
 }
 
-function endGame() {
-    gameState.status = 'ended';
-    btnMash.disabled = true;
-    let winnerText = gameState.position <= 0 ? "Player 1 Wins!" : "Player 2 Wins!";
-    document.getElementById('match-result').innerText = winnerText;
-    gameScreen.classList.add('hidden');
-    endingScreen.classList.remove('hidden');
+function endGame(message) {
+    statusText.innerText = message;
+    mashBtn.disabled = true;
+    if (matchChannel) supabase.removeChannel(matchChannel);
 }
