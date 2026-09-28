@@ -1,137 +1,61 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
 body {
-    background: #1a1a1a;
+    background-color: #121212;
     color: #ffffff;
+    font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
+    margin: 0;
 }
-
-.screen {
-    text-align: center;
-    background: #2a2a2a;
+.game-container {
+    background-color: #1e1e1e;
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     width: 90%;
-    max-width: 600px;
+    max-width: 400px;
 }
-
+h1 { color: #ff4d4d; }
+.screen { display: flex; flex-direction: column; gap: 15px; }
 .hidden { display: none !important; }
-
-h1 { margin-bottom: 20px; color: #ff4757; }
-
-.room-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-}
-
 button {
-    background: #ff4757;
+    background-color: #ff4d4d;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 12px;
     font-size: 16px;
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
-    transition: 0.2s;
 }
-
-button:hover { background: #ff6b81; }
-button:disabled { background: #555; cursor: not-allowed; }
-
-.join-box {
-    display: flex;
-    gap: 10px;
-}
-
+button:disabled { background-color: #555; cursor: not-allowed; }
 input {
-    flex: 1;
-    padding: 12px;
+    padding: 10px;
     border-radius: 6px;
-    border: 2px solid #444;
-    background: #333;
+    border: 1px solid #444;
+    background: #2a2a2a;
     color: white;
-    font-size: 16px;
+    text-align: center;
 }
-
 .arena {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 30px 0;
-    background: #333;
-    padding: 20px;
+    background: #2a2a2a;
+    height: 60px;
     border-radius: 8px;
-}
-
-.character {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 30%;
-}
-
-.photo-slot {
-    width: 80px;
-    height: 80px;
-    background: #555;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-    border: 3px solid #ff4757;
-    overflow: hidden;
-    background-size: cover;
-    background-position: center;
-}
-
-.table-area {
-    width: 40%;
-    padding: 10px;
-}
-
-.arm-track {
-    width: 100%;
-    height: 20px;
-    background: #222;
-    border-radius: 10px;
+    margin: 20px 0;
     position: relative;
+    font-weight: bold;
 }
-
-#arm-marker {
+#arm-indicator {
     position: absolute;
-    top: -8px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 24px;
+    color: #ff4d4d;
     transition: left 0.1s ease;
 }
-
-#btn-mash {
-    width: 100%;
-    padding: 20px;
-    font-size: 20px;
-}
-
-.kiss-visual {
-    font-size: 64px;
-    margin: 20px 0;
-    animation: pulse 1s infinite alternate;
-}
-
-@keyframes pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.2); }
-}
+.player-side { padding: 0 10px; opacity: 0.6; }
